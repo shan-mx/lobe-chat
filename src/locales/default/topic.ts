@@ -19,6 +19,7 @@ export default {
     descMessages: '按消息总数倒序',
     flat: '不分组',
   },
+  emptyList: '暂无话题',
   groupTitle: {
     byTime: {
       month: '本月',
