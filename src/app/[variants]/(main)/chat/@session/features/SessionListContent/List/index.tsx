@@ -19,6 +19,7 @@ import { LobeSessions } from '@/types/session';
 import SkeletonList from '../../SkeletonList';
 import AddButton from './AddButton';
 import SessionItem from './Item';
+import SessionTopicList from './SessionTopicList';
 
 const useStyles = createStyles(
   ({ css }) => css`
@@ -47,45 +48,49 @@ const SessionList = memo<SessionListProps>(({ dataSource, groupId, showAddButton
   ) : !isEmpty ? (
     dataSource.map(({ id }) => (
       <LazyLoad className={styles} key={id}>
-        <Link
-          aria-label={id}
-          href={SESSION_CHAT_URL(id, mobile)}
-          onClick={(e) => {
-            e.preventDefault();
-            switchSession(id);
+        <div>
+          <Link
+            aria-label={id}
+            href={SESSION_CHAT_URL(id, mobile)}
+            style={{ display: 'block' }}
+            onClick={(e) => {
+              e.preventDefault();
+              switchSession(id);
 
-            // Enhanced analytics tracking
-            if (analytics) {
-              const userStore = getUserStoreState();
-              const sessionStore = getSessionStoreState();
+              // Enhanced analytics tracking
+              if (analytics) {
+                const userStore = getUserStoreState();
+                const sessionStore = getSessionStoreState();
 
-              const userId = userProfileSelectors.userId(userStore);
-              const session = sessionSelectors.getSessionById(id)(sessionStore);
+                const userId = userProfileSelectors.userId(userStore);
+                const session = sessionSelectors.getSessionById(id)(sessionStore);
 
-              if (session) {
-                const sessionGroupId = session.group || 'default';
-                const group = sessionGroupSelectors.getGroupById(sessionGroupId)(sessionStore);
-                const groupName =
-                  group?.name || (sessionGroupId === 'default' ? 'Default' : 'Unknown');
+                if (session) {
+                  const sessionGroupId = session.group || 'default';
+                  const group = sessionGroupSelectors.getGroupById(sessionGroupId)(sessionStore);
+                  const groupName =
+                    group?.name || (sessionGroupId === 'default' ? 'Default' : 'Unknown');
 
-                analytics?.track({
-                  name: 'switch_session',
-                  properties: {
-                    assistant_name: session.meta?.title || 'Untitled Agent',
-                    assistant_tags: session.meta?.tags || [],
-                    group_id: sessionGroupId,
-                    group_name: groupName,
-                    session_id: id,
-                    spm: 'homepage.chat.session_list_item.click',
-                    user_id: userId || 'anonymous',
-                  },
-                });
+                  analytics?.track({
+                    name: 'switch_session',
+                    properties: {
+                      assistant_name: session.meta?.title || 'Untitled Agent',
+                      assistant_tags: session.meta?.tags || [],
+                      group_id: sessionGroupId,
+                      group_name: groupName,
+                      session_id: id,
+                      spm: 'homepage.chat.session_list_item.click',
+                      user_id: userId || 'anonymous',
+                    },
+                  });
+                }
               }
-            }
-          }}
-        >
-          <SessionItem id={id} />
-        </Link>
+            }}
+          >
+            <SessionItem id={id} />
+          </Link>
+          <SessionTopicList sessionId={id} />
+        </div>
       </LazyLoad>
     ))
   ) : showCreateSession ? (
