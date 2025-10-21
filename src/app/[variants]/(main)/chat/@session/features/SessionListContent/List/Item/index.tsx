@@ -10,6 +10,7 @@ import { agentSelectors } from '@/store/agent/selectors';
 import { useChatStore } from '@/store/chat';
 import { chatSelectors } from '@/store/chat/selectors';
 import { useGlobalStore } from '@/store/global';
+import { useServerConfigStore } from '@/store/serverConfig';
 import { useSessionStore } from '@/store/session';
 import { sessionHelpers } from '@/store/session/helpers';
 import { sessionMetaSelectors, sessionSelectors } from '@/store/session/selectors';
@@ -23,14 +24,17 @@ import Actions from './Actions';
 
 interface SessionItemProps {
   id: string;
+  indent?: number;
 }
 
-const SessionItem = memo<SessionItemProps>(({ id }) => {
+const SessionItem = memo<SessionItemProps>(({ id, indent = 12 }) => {
   const [open, setOpen] = useState(false);
   const [createGroupModalOpen, setCreateGroupModalOpen] = useState(false);
   const [defaultModel] = useAgentStore((s) => [agentSelectors.inboxAgentModel(s)]);
 
   const openSessionInNewWindow = useGlobalStore((s) => s.openSessionInNewWindow);
+
+  const isMobile = useServerConfigStore((s) => s.isMobile);
 
   const [active] = useSessionStore((s) => [s.activeId === id]);
   const [loading] = useChatStore((s) => [chatSelectors.isAIGenerating(s) && id === s.activeId]);
@@ -135,6 +139,7 @@ const SessionItem = memo<SessionItemProps>(({ id }) => {
         styles={{
           container: {
             gap: 12,
+            paddingInline: `${isMobile ? 12 : indent}px 16px`,
           },
           content: {
             gap: 6,
