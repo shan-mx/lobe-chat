@@ -32,7 +32,7 @@ const SessionList = memo<SessionListProps>(({ dataSource, groupId, showAddButton
 
   const isInit = useSessionStore(sessionSelectors.isSessionListInit);
   const { showCreateSession } = useServerConfigStore(featureFlagsSelectors);
-  const mobile = useServerConfigStore((s) => s.isMobile);
+  const mobile = useServerConfigStore((s) => s.isMobile) ?? false;
 
   const isEmpty = !dataSource || dataSource.length === 0;
   return !isInit ? (

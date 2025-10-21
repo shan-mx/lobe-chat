@@ -2,11 +2,11 @@ import { ActionIcon, Icon } from '@lobehub/ui';
 import { Skeleton } from 'antd';
 import { createStyles } from 'antd-style';
 import isEqual from 'fast-deep-equal';
+import { ChevronDown, ChevronRight, Star } from 'lucide-react';
 import Link from 'next/link';
 import type { MouseEvent } from 'react';
 import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, ChevronRight, Star } from 'lucide-react';
 
 import { SESSION_CHAT_URL } from '@/const/url';
 import { useSwitchSession } from '@/hooks/useSwitchSession';
@@ -30,58 +30,71 @@ const useStyles = createStyles(({ css, token, isDarkMode }) => ({
   container: css`
     position: relative;
   `,
+  favorite: css`
+    color: ${token.colorWarning};
+  `,
+  placeholder: css`
+    margin-inline-start: ${TOPIC_INDENT}px;
+    padding-block: 4px 8px;
+    padding-inline: 8px;
+
+    font-size: 12px;
+    color: ${token.colorTextQuaternary};
+  `,
+  skeleton: css`
+    margin-inline-start: ${TOPIC_INDENT}px;
+    padding-block: 4px 8px;
+    padding-inline: 8px;
+  `,
   toggle: css`
     position: absolute;
-    left: 12px;
-    top: 16px;
     z-index: 2;
+    inset-block-start: 16px;
+    inset-inline-start: 12px;
+  `,
+  topicActive: css`
+    color: ${token.colorText};
+    background: ${isDarkMode ? token.colorFillSecondary : token.colorFillTertiary};
+  `,
+  topicItem: css`
+    cursor: pointer;
+
+    display: flex;
+    gap: 6px;
+    align-items: center;
+
+    padding-block: 6px;
+    padding-inline: 8px;
+    border-radius: ${token.borderRadiusSM}px;
+
+    color: ${token.colorTextSecondary};
+
+    transition:
+      background 0.2s ${token.motionEaseOut},
+      color 0.2s ${token.motionEaseOut};
+
+    &:hover {
+      color: ${token.colorText};
+      background: ${isDarkMode ? token.colorFillTertiary : token.colorFillSecondary};
+    }
+  `,
+  topicTitle: css`
+    overflow: hidden;
+    flex: 1;
+
+    min-width: 0;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
   `,
   topics: css`
     display: flex;
     flex-direction: column;
     gap: 4px;
-    margin-left: ${TOPIC_INDENT}px;
-    margin-top: 4px;
-    padding-bottom: 8px;
-  `,
-  topicItem: css`
-    align-items: center;
-    border-radius: ${token.borderRadiusSM}px;
-    color: ${token.colorTextSecondary};
-    cursor: pointer;
-    display: flex;
-    gap: 6px;
-    padding: 6px 8px;
-    transition: background 0.2s ${token.motionEaseOut}, color 0.2s ${token.motionEaseOut};
 
-    &:hover {
-      background: ${isDarkMode ? token.colorFillTertiary : token.colorFillSecondary};
-      color: ${token.colorText};
-    }
-  `,
-  topicActive: css`
-    background: ${isDarkMode ? token.colorFillSecondary : token.colorFillTertiary};
-    color: ${token.colorText};
-  `,
-  topicTitle: css`
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  `,
-  favorite: css`
-    color: ${token.colorWarning};
-  `,
-  placeholder: css`
-    color: ${token.colorTextQuaternary};
-    font-size: 12px;
-    margin-left: ${TOPIC_INDENT}px;
-    padding: 4px 8px 8px;
-  `,
-  skeleton: css`
-    margin-left: ${TOPIC_INDENT}px;
-    padding: 4px 8px 8px;
+    margin-block-start: 4px;
+    margin-inline-start: ${TOPIC_INDENT}px;
+    padding-block-end: 8px;
   `,
 }));
 
@@ -147,7 +160,7 @@ const SessionListItem = memo<SessionListItemProps>(({ analytics, mobile, session
     });
   };
 
-  const handleToggle = (event: MouseEvent<HTMLButtonElement>) => {
+  const handleToggle = (event: MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
     event.preventDefault();
     setExpanded((prev) => !prev);
@@ -215,7 +228,11 @@ const SessionListItem = memo<SessionListItemProps>(({ analytics, mobile, session
                   >
                     <span className={styles.topicTitle}>{topic.title || t('defaultTitle')}</span>
                     {topic.favorite && (
-                      <Icon className={styles.favorite} icon={Star} size={14} strokeWidth={1.75} />
+                      <Icon
+                        className={styles.favorite}
+                        icon={Star}
+                        size={{ size: 14, strokeWidth: 1.75 }}
+                      />
                     )}
                   </div>
                 );
